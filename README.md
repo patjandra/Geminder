@@ -8,8 +8,8 @@ Geminder is a real-time calendar web application that helps users manage events 
 
 - **Weekly calendar UI** powered by FullCalendar
 - **Custom assistants** with:
-  - Role (e.g., 🎓 Scholar, 🧘 Calm Guide)
-  - Emotion (e.g., Cheerful, Calm)
+  - Role (e.g., 🪖Soldier, 🏄 Surfer )
+  - Emotion (e.g., Angry, Calm)
   - Voice (Gemini TTS ID mapped to name/description)
 - **Google Sign-In** via Firebase Auth
 - **Google Calendar import** on login (read-only, no writeback)
@@ -38,10 +38,10 @@ Geminder is a real-time calendar web application that helps users manage events 
 
 ```
 geminder/
-├── public/                 # Default audio reminder
+├── public/                 # Default audio reminder, other imgs
 │   └── GeminderDefaultRing.mp3
 ├── src/
-│   ├── components/         # React components (LoginPage, Calendar, etc.)
+│   ├── components/         # React components (LoginPage, CalendarPage, etc.)
 │   ├── firebase.js         # Firebase app, auth, db config
 │   ├── index.css           # Tailwind CSS base + custom styles
 │   ├── App.jsx             # Main app logic and layout
@@ -92,7 +92,7 @@ For Gemini and TTS APIs, use Firebase Functions to call your APIs securely.
 
 - Audio reminders only play when the tab is open and the user has clicked "Start Session"
 - Events are dimmed after they pass
-- No push notifications or settings page in MVP
+- No push notifications or settings page for now
 - Gemini prompt failures silently fallback to default ring
 - Recurring events only generated up to 90 days ahead
 
