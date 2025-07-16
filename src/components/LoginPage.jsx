@@ -7,7 +7,7 @@ export default function Login({ onLogin}) {
             const result = await signInWithPopup(auth, provider);
             const user = result.user;
             console.log("Signed in as:", user.displayName);
-            onLogin(user);
+            onLogin(result.user);
         } catch (error) {
             console.error("Sign-in error:", error);
             alert("Failed to sign in. Please try again.");
@@ -21,7 +21,7 @@ export default function Login({ onLogin}) {
     return (
         <div className="h-screen flex items-center justify-center bg-lightGray">
             {/* Login Square */}
-            <div className="bg-darkGray w-[500px] h-[500px] rounded-lg shadow-md text-center p-6">
+            <div className="bg-darkGray w-[500px] h-[500px] rounded-2xl shadow-md text-center p-6">
                 <img src="../../public/GeminderLogo.png" alt="Geminder Logo" className="h-20 w-auto mt-3 mb-14 mx-auto" />
 
                 <button 
