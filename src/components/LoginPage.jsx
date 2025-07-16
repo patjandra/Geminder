@@ -19,22 +19,23 @@ export default function Login({ onLogin}) {
     };
 
     return (
-        <div className="h-screen flex items-center justify-center bg-gray-100">
-            <div className="bg-white p-10 rounded-lg shadow-md text-center">
-                <h1 className="text-3xl font-bold mb-6">Welcome to Geminder</h1>
+        <div className="h-screen flex items-center justify-center bg-lightGray">
+            {/* Login Square */}
+            <div className="bg-darkGray w-[500px] h-[500px] rounded-lg shadow-md text-center p-6">
+                <img src="../../public/GeminderLogo.png" alt="Geminder Logo" className="h-20 w-auto mt-3 mb-14 mx-auto" />
 
                 <button 
                     onClick={handleLogin}
-                    className="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded mb-4 w-full"
+                    className="bg-geminderBlue hover:bg-blue-600 text-white text-xl font-semibold py-4 px-4 rounded-xl w-3/4 mt-3 mx-auto"
                 >
                     Sign in with Google
                 </button>
 
-                <p className="text-gray-500 my-2">or</p>
+                <img src="../../public/OrLoginElem.png" alt="Or Login Element" className="w-3/4 mt-10 mb-10 mx-auto" />
 
                 <button
                     onClick={handleContinueWithoutLogin}
-                    className="bg-gray-300 hover:bg-gray-400 text-black font-semibold py-2 px-4 rounded w-full"
+                    className="bg-gray-300 hover:bg-gray-400 text-gray-500 text-xl font-semibold py-4 px-4 rounded-xl h- w-3/4 mx-auto"
                 >
                     Continue without login
                 </button>

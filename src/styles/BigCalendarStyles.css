@@ -1,0 +1,35 @@
+.rbc-calendar { /* main calendar container */
+  font-family: inherit;
+  background-color: white;
+  color:black;
+}
+
+.rbc-toolbar { 
+  background-color: #1f2937; 
+  color: white;
+  font-weight: bold;
+  padding: 0.5rem;
+  font-size: 20px;
+}
+
+.rbc-btn-group button { /* nav bar buttons */
+  background-color: #54647E; 
+  color: black;
+  border: none;
+  padding: 0.25rem 0.5rem;
+  margin-right: 4px;
+  border-radius: 4px;
+  font-size: 0.875rem;
+}
+
+.rbc-btn-group button:hover { /* hover nav bar buttons */
+  background-color: #7faaff; 
+}
+
+.rbc-event { /* Tailwind blue-500 */
+  background-color: #276ffe; /*0057FF 3b82f6*/
+  color: white;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 0.75rem;
+}

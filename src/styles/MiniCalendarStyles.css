@@ -1,0 +1,31 @@
+.react-calendar { /* main calendar container */
+  border: none;
+  font-family: inherit;
+  color: white;
+  background-color: rgb(43, 43, 43);
+  border-radius: 8px;
+  padding: 8px;
+}
+
+.react-calendar__tile { /* days other than current */
+  padding: 8px 0;
+  font-size: 0.875rem;
+  border-radius: 4px;
+  color: white;
+}
+
+.react-calendar__tile--now { /* current day */
+  background: #7faaff; 
+  color: black;
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+}
+
+.react-calendar__tile--active {  /* selected day while navigating */
+  background-color: #0057FF;
+  color: black;
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+}
