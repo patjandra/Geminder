@@ -4,6 +4,7 @@ import Calendar from 'react-calendar';
 import { collection, getDocs } from 'firebase/firestore';
 import { db } from '../firebase';
 
+
 export default function EventModal({ slotInfo, eventToEdit, onClose, onSave, user }) {
   // Initialize state based on whether we're editing or creating
   const [title, setTitle] = useState(eventToEdit?.title || '');
@@ -79,18 +80,16 @@ export default function EventModal({ slotInfo, eventToEdit, onClose, onSave, use
       assistantId: selectedAssistantId || null
     };
 
-    // Set default sound if no assistant selected or if "default" is selected
-    if (!selectedAssistantId || selectedAssistantId === 'default') {
-      reminder.soundUrl = '/GeminderDefaultRing.mp3';
-    } else {
-      // Find selected assistant and use their voice if available
-      const selectedAssistant = assistants.find(a => a.id === selectedAssistantId);
-      if (selectedAssistant?.voiceId) {
-        reminder.soundUrl = selectedAssistant.voiceId;
-      } else {
-        reminder.soundUrl = '/GeminderDefaultRing.mp3';
+    // Set reminder sound URL
+    const getReminderSoundUrl = () => {
+      if (!selectedAssistantId || selectedAssistantId === 'default') {
+        return '/GeminderDefaultRing.mp3';
       }
-    }
+      const selectedAssistant = assistants.find(a => a.id === selectedAssistantId);
+      return selectedAssistant?.voiceId || '/GeminderDefaultRing.mp3';
+    };
+    
+    reminder.soundUrl = getReminderSoundUrl();
 
     const eventData = {
       title: title.trim(),
@@ -111,26 +110,25 @@ export default function EventModal({ slotInfo, eventToEdit, onClose, onSave, use
   };
 
   const handleDateSelect = (date) => {
-    const newStartTime = new Date(startTime);
-    newStartTime.setFullYear(date.getFullYear());
-    newStartTime.setMonth(date.getMonth());
-    newStartTime.setDate(date.getDate());
+    const updateTime = (time) => {
+      const newTime = new Date(time);
+      newTime.setFullYear(date.getFullYear());
+      newTime.setMonth(date.getMonth());
+      newTime.setDate(date.getDate());
+      return newTime;
+    };
     
-    const newEndTime = new Date(endTime);
-    newEndTime.setFullYear(date.getFullYear());
-    newEndTime.setMonth(date.getMonth());
-    newEndTime.setDate(date.getDate());
-    
-    setStartTime(newStartTime);
-    setEndTime(newEndTime);
+    setStartTime(updateTime(startTime));
+    setEndTime(updateTime(endTime));
     setShowCalendar(false);
   };
 
   const handleTimeChange = (timeString, isStartTime) => {
-    const [hours, minutes] = timeString.split(':');
+    const [hours, minutes] = timeString.split(':').map(Number);
     const targetTime = isStartTime ? startTime : endTime;
+    
     const updated = new Date(targetTime);
-    updated.setHours(parseInt(hours, 10), parseInt(minutes, 10));
+    updated.setHours(hours, minutes);
     
     if (isStartTime) {
       setStartTime(updated);
@@ -146,17 +144,14 @@ export default function EventModal({ slotInfo, eventToEdit, onClose, onSave, use
   };
 
   const handleReminderTimeChange = (e) => {
-    let val = e.target.value;
+    const val = e.target.value;
     if (val === '') {
       setReminderTime('');
       return;
     }
-    if (/^\d+$/.test(val)) {
-      const cleaned = val.replace(/^0+(?=\d)/, '');
-      const numVal = parseInt(cleaned, 10);
-      if (numVal > 0) {
-        setReminderTime(numVal);
-      }
+    const numVal = parseInt(val.replace(/^0+(?=\d)/, ''), 10);
+    if (numVal > 0) {
+      setReminderTime(numVal);
     }
   };
 

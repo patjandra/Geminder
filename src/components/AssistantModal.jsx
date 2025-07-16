@@ -56,14 +56,9 @@ export default function AssistantModal({ onClose, user, onAssistantCreated, onSh
 
       // Use user.uid if user exists, otherwise use a guest ID
       const userId = user?.uid || 'guest';
-      console.log('Creating assistant with data:', newAssistant);
-      console.log('User ID:', userId);
       
       const assistantsCollection = collection(db, 'users', userId, 'assistants');
-      console.log('Collection path:', `users/${userId}/assistants`);
-      
       const docRef = await addDoc(assistantsCollection, newAssistant);
-      console.log('Assistant created successfully with ID:', docRef.id);
       
       // Call the callback to refresh the assistants list
       if (onAssistantCreated) {
@@ -78,9 +73,6 @@ export default function AssistantModal({ onClose, user, onAssistantCreated, onSh
       }
     } catch (error) {
       console.error('Error creating assistant:', error);
-      console.error('Error code:', error.code);
-      console.error('Error message:', error.message);
-      console.error('Error details:', error);
       alert(`Failed to create assistant: ${error.message}`);
     }
   };

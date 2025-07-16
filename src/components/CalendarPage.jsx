@@ -1,8 +1,6 @@
-import { useState, useEffect } from 'react'; 
+import { useState, useEffect, useCallback } from 'react'; 
 import BigCalendar from './BigCalendar.jsx';
 import Calendar from 'react-calendar';
-import 'react-calendar/dist/Calendar.css'; // Required styles
-import { useRef } from 'react';
 import 'react-calendar/dist/Calendar.css';
 import '../styles/MiniCalendarStyles.css';
 import AssistantModal from './AssistantModal.jsx';
@@ -11,6 +9,7 @@ import { db } from '../firebase';
 import { signOut } from 'firebase/auth';
 import { auth } from '../firebase';
 import Notification from './Notification.jsx';
+
 
 export default function CalendarPage({ user, onLogout }) {
     const [sidebarOpen, setSidebarOpen] = useState(true);
@@ -23,35 +22,36 @@ export default function CalendarPage({ user, onLogout }) {
     const [notificationMessage, setNotificationMessage] = useState('');
     const [notificationColor, setNotificationColor] = useState('green');
 
-    // Fetch assistants from Firestore
-    useEffect(() => {
-        const fetchAssistants = async () => {
-            try {
-                const userId = user?.uid || 'guest';
-                const assistantsCollection = collection(db, 'users', userId, 'assistants');
-                const assistantsSnapshot = await getDocs(assistantsCollection);
-                const assistantsList = assistantsSnapshot.docs.map(doc => ({
-                    id: doc.id,
-                    ...doc.data()
-                }));
-                setAssistants(assistantsList);
-            } catch (error) {
-                console.error('Error fetching assistants:', error);
-                setAssistants([]);
-            } finally {
-                setLoading(false);
-            }
-        };
 
-        fetchAssistants();
+    // Fetch assistants from Firestore
+    const fetchAssistants = useCallback(async () => {
+        try {
+            const userId = user?.uid || 'guest';
+            const assistantsCollection = collection(db, 'users', userId, 'assistants');
+            const assistantsSnapshot = await getDocs(assistantsCollection);
+            const assistantsList = assistantsSnapshot.docs.map(doc => ({
+                id: doc.id,
+                ...doc.data()
+            }));
+            setAssistants(assistantsList);
+        } catch (error) {
+            console.error('Error fetching assistants:', error);
+            setAssistants([]);
+        } finally {
+            setLoading(false);
+        }
     }, [user]);
+
+    useEffect(() => {
+        fetchAssistants();
+    }, [fetchAssistants]);
 
     const handleDeleteAssistant = async (assistantId) => {
         if (window.confirm('Are you sure you want to delete this assistant?')) {
             try {
                 const userId = user?.uid || 'guest';
                 await deleteDoc(doc(db, 'users', userId, 'assistants', assistantId));
-                setAssistants(assistants.filter(assistant => assistant.id !== assistantId));
+                setAssistants(prevAssistants => prevAssistants.filter(assistant => assistant.id !== assistantId));
                 
                 // Show success notification
                 setNotificationMessage('Assistant deleted!');
@@ -66,20 +66,6 @@ export default function CalendarPage({ user, onLogout }) {
 
     const handleAssistantCreated = () => {
         // Refresh the assistants list after creating a new one
-        const fetchAssistants = async () => {
-            try {
-                const userId = user?.uid || 'guest';
-                const assistantsCollection = collection(db, 'users', userId, 'assistants');
-                const assistantsSnapshot = await getDocs(assistantsCollection);
-                const assistantsList = assistantsSnapshot.docs.map(doc => ({
-                    id: doc.id,
-                    ...doc.data()
-                }));
-                setAssistants(assistantsList);
-            } catch (error) {
-                console.error('Error fetching assistants:', error);
-            }
-        };
         fetchAssistants();
     };
 
@@ -123,13 +109,7 @@ export default function CalendarPage({ user, onLogout }) {
 
                     
                     <div className="flex items-center space-x-4">
-                        {/* Timezone Dropdown*/}
-                        <select className="border rounded px-2 py-1 text-sm">
-                            <option>Pacific Time (PT)</option>
-                            <option>Mountain Time (MT)</option>
-                            <option>Central Time (CT)</option>
-                            <option>Eastern Time (ET)</option>
-                        </select>
+
 
                         {/* Log Out Button */}
                         <button 

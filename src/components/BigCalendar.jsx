@@ -5,12 +5,12 @@ import startOfWeek from 'date-fns/startOfWeek';
 import getDay from 'date-fns/getDay';
 import enUS from 'date-fns/locale/en-US';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
-import { useState, useEffect } from 'react';
-import 'react-big-calendar/lib/css/react-big-calendar.css';
+import { useState, useEffect, useCallback } from 'react';
 import '../styles/BigCalendarStyles.css';
 import EventModal from './EventModal.jsx';
 import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc, serverTimestamp } from 'firebase/firestore';
 import { db } from '../firebase';
+
 
 const locales = { 'en-US': enUS };
 
@@ -44,30 +44,37 @@ export default function BigCalendar({ currentDate, setCurrentDate, currentView, 
   const [eventToEdit, setEventToEdit] = useState(null);
 
   // Fetch events from Firestore
-  useEffect(() => {
-    const fetchEvents = async () => {
-      try {
-        setLoading(true);
-        const userId = user?.uid || 'guest';
-        const eventsCollection = collection(db, 'users', userId, 'events');
-        const eventsSnapshot = await getDocs(eventsCollection);
-        const eventsList = eventsSnapshot.docs.map(doc => ({
+  const fetchEvents = useCallback(async () => {
+    try {
+      setLoading(true);
+      const userId = user?.uid || 'guest';
+      const eventsCollection = collection(db, 'users', userId, 'events');
+      const eventsSnapshot = await getDocs(eventsCollection);
+      const eventsList = eventsSnapshot.docs.map(doc => {
+        const data = doc.data();
+        // Convert Firestore timestamps to Date objects
+        const startDate = data.start?.toDate() || new Date(data.start);
+        const endDate = data.end?.toDate() || new Date(data.end);
+        
+        return {
           id: doc.id,
-          ...doc.data(),
-          start: doc.data().start?.toDate() || new Date(doc.data().start),
-          end: doc.data().end?.toDate() || new Date(doc.data().end)
-        }));
-        setEvents(eventsList);
-      } catch (error) {
-        console.error('Error fetching events:', error);
-        setEvents([]);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchEvents();
+          ...data,
+          start: startDate,
+          end: endDate
+        };
+      });
+      setEvents(eventsList);
+    } catch (error) {
+      console.error('Error fetching events:', error);
+      setEvents([]);
+    } finally {
+      setLoading(false);
+    }
   }, [user]);
+
+  useEffect(() => {
+    fetchEvents();
+  }, [fetchEvents]);
 
   const handleEventSelect = (event) => {
     setEventToEdit(event);
@@ -99,7 +106,7 @@ export default function BigCalendar({ currentDate, setCurrentDate, currentView, 
       if (eventData.delete) {
         // Delete the event from Firestore
         await deleteDoc(doc(db, 'users', userId, 'events', eventData.id));
-        setEvents(events.filter(event => event.id !== eventData.id));
+        setEvents(prevEvents => prevEvents.filter(event => event.id !== eventData.id));
       } else if (eventToEdit) {
         // Update existing event in Firestore
         const eventRef = doc(db, 'users', userId, 'events', eventToEdit.id);
@@ -118,8 +125,11 @@ export default function BigCalendar({ currentDate, setCurrentDate, currentView, 
         await updateDoc(eventRef, updateData);
         
         // Update local state
-        setEvents(events.map(event => 
-          event.id === eventToEdit.id ? { ...event, ...updateData } : event
+        setEvents(prevEvents => prevEvents.map(event => 
+          event.id === eventToEdit.id ? { 
+            ...event, 
+            ...updateData
+          } : event
         ));
       } else {
         // Add new event to Firestore
@@ -140,11 +150,9 @@ export default function BigCalendar({ currentDate, setCurrentDate, currentView, 
         const docRef = await addDoc(eventsCollection, newEventData);
         const newEvent = {
           id: docRef.id,
-          ...newEventData,
-          start: eventData.start,
-          end: eventData.end
+          ...newEventData
         };
-        setEvents([...events, newEvent]);
+        setEvents(prevEvents => [...prevEvents, newEvent]);
       }
       
       setShowModal(false);
