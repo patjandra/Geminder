@@ -8,6 +8,7 @@ import 'react-big-calendar/lib/css/react-big-calendar.css';
 import { useState } from 'react';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import '../styles/BigCalendarStyles.css';
+import EventModal from './EventModal.jsx';
 
 const locales = { 'en-US': enUS };
 
@@ -28,6 +29,9 @@ export default function BigCalendar({ currentDate, setCurrentDate, currentView, 
     },
   ]);
 
+  const [showModal, setShowModal] = useState(false);
+const [selectedSlot, setSelectedSlot] = useState(null);
+
   return (
     <div className="h-full">
       <Calendar
@@ -36,13 +40,31 @@ export default function BigCalendar({ currentDate, setCurrentDate, currentView, 
         startAccessor="start"
         endAccessor="end"
         date={currentDate}
-        onNavigate={(newDate) => setCurrentDate(newDate)}
         view={currentView}
         onView={(newView) => setCurrentView(newView)}
+        onNavigate={(newDate) => setCurrentDate(newDate)}
+        selectable={true}
+        onSelectSlot={(slotInfo) => {
+            console.log('Selected slot:', slotInfo);
+            setSelectedSlot(slotInfo);
+            setShowModal(true);
+;        }}
         views={['month', 'week', 'day']}
         toolbar={true}
         style={{ height: '100%' }}
       />
+
+      {showModal && (
+        <EventModal
+          slot={selectedSlot}
+          onClose={() => setShowModal(false)}
+          onSave={(newEvent) => {
+            console.log('Event saved:', newEvent);
+            setEvents([...events, newEvent])
+            setShowModal(false);
+          }}
+          />
+        )}
     </div>
   );
 }
